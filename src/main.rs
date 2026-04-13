@@ -9,11 +9,11 @@ use dotenvy::dotenv;
 use std::env;
 use eyre::Result;
 use crate::github::GithubClient;
-use crate::contract::ContractClient;
+use crate::contract::StellarContractClient;
 
 #[derive(Parser)]
 #[command(name = "wave-ready")]
-#[command(about = "Audit GitHub issues for Drips Wave readiness", long_about = None)]
+#[command(about = "Audit GitHub issues for Stellar SCF readiness", long_about = None)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -21,21 +21,21 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    /// Scan a repository for suggested points
+    /// Scan a repository for Stellar Community Fund (SCF) points
     Scan {
         #[arg(short, long)]
         owner: String,
         #[arg(short, long)]
         repo: String,
     },
-    /// Sync suggested points to a smart contract
-    Sync {
+    /// Sync suggested points to a Soroban rewards contract
+    StellarSync {
         #[arg(short, long)]
         owner: String,
         #[arg(short, long)]
         repo: String,
         #[arg(short, long)]
-        contract_address: String,
+        registry_address: String,
     },
 }
 
@@ -51,21 +51,21 @@ async fn main() -> Result<()> {
 
     match cli.command {
         Commands::Scan { owner, repo } => {
-            println!("Scanning {}/{} for Wave issues...", owner, repo);
+            println!("Scanning {}/{} for Stellar SCF readiness...", owner, repo);
             let issues = gh_client.fetch_issues(&owner, &repo).await?;
             
-            println!("\n--- Suggested Points for Drips Wave ---");
+            println!("\n--- Suggested Points for Stellar Wave ---");
             for issue in issues {
                 let points = analyzer::estimate_points(&issue);
                 println!("[#{}] {}...", issue.number, &issue.title[..std::cmp::min(50, issue.title.len())]);
                 println!("    Suggested Points: {}\n", points);
             }
         }
-        Commands::Sync { owner, repo, contract_address: _ } => {
-            let rpc_url = env::var("RPC_URL").unwrap_or_else(|_| "https://eth.llamarpc.com".to_string());
-            let contract_client = ContractClient::new(&rpc_url)?;
+        Commands::StellarSync { owner, repo, registry_address: _ } => {
+            let rpc_url = env::var("SOROBAN_RPC_URL").unwrap_or_else(|_| "https://soroban-testnet.stellar.org".to_string());
+            let contract_client = StellarContractClient::new(&rpc_url)?;
             
-            println!("Fetching issues to sync...");
+            println!("Fetching issues to sync to Stellar...");
             let issues = gh_client.fetch_issues(&owner, &repo).await?;
             
             let mut total_points = 0;
@@ -73,9 +73,9 @@ async fn main() -> Result<()> {
                 total_points += analyzer::estimate_points(&issue);
             }
 
-            println!("Calculated total Wave points: {}", total_points);
-            contract_client.sync_points(&format!("{}/{}", owner, repo), total_points).await?;
-            println!("Sync complete!");
+            println!("Calculated total Stellar Wave points: {}", total_points);
+            contract_client.sync_to_stellar(&format!("{}/{}", owner, repo), total_points).await?;
+            println!("Stellar Sync complete!");
         }
     }
 

@@ -1,11 +1,11 @@
-# Wave-Ready Repository Linter 🌊 (Rust Edition)
+# Wave-Ready Repository Linter 🌊 (Stellar Edition)
 
-Automate your Drips Network Wave "Scoping" phase with Rust. This tool scans your GitHub backlog, suggests Point values, and syncs them to smart contracts.
+Automate your **Stellar Community Fund (SCF)** and **Soroban** milestone readiness. This tool scans your GitHub backlog, suggests Point values based on Stellar ecosystem standards, and syncs them to Soroban-based registries.
 
 ## Features
-- **Fast & Safe**: Built with Rust for high performance.
-- **GitHub Integration**: Uses `octocrab` to audit issues.
-- **Contract Ready**: Uses `alloy` to sync scores with Drips protocol contracts.
+- **Stellar Native**: Built for developers working on Soroban and Stellar Ecosystem Proposals (SEPs).
+- **SCF Integration**: Specifically tuned for Stellar Community Fund tranches and milestones.
+- **Fast & Safe**: Rust-powered linter utilizing `stellar-rpc-client` and `octocrab`.
 
 ## Setup
 1. Ensure you have [Rust](https://rustup.rs/) installed.
@@ -14,20 +14,21 @@ Automate your Drips Network Wave "Scoping" phase with Rust. This tool scans your
    ```bash
    cp .env.example .env
    ```
-4. Add your `GITHUB_TOKEN` and `RPC_URL` to `.env`.
+4. Add your `GITHUB_TOKEN` and `SOROBAN_RPC_URL` to `.env`.
 
 ## Usage
-### Scan a repository
+### Scan for Stellar Points
 ```bash
-cargo run -- scan --owner drips-network --repo org-monorepo
+cargo run -- scan --owner stellar --repo soroban-sdk
 ```
 
-### Sync to a contract
+### Sync to Stellar/Soroban
 ```bash
-cargo run -- sync --owner drips-network --repo org-monorepo --contract-address 0x...
+cargo run -- stellar-sync --owner stellar --repo soroban-sdk --registry-address [CONTRACT_ID]
 ```
 
-## How it helps
-- **Consistency:** Ensures similar tasks across projects have similar point rewards.
-- **Transparency:** Push scores to on-chain registries for trustless distributions.
-- **Speed:** Prepare 50+ issues for a Wave in seconds.
+## Scoring Criteria
+- **Soroban Integration**: 30 points per issue.
+- **SEP Implementation**: 40 points (Ecosystem priority).
+- **SCF Milestones**: +20 points for critical delivery artifacts.
+- **Bug/Enhancement**: Standard refinement scores.
